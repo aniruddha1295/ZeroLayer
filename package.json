@@ -1,25 +1,48 @@
 {
   "name": "claw-pin",
   "version": "1.0.0",
-  "description": "> **\"Trustless file storage where AI agents negotiate, verify, and settle payments\"—The missing infrastructure layer for the cybernetic economy.**",
-  "main": "index.js",
+  "description": "Agentic file storage CLI — trustless file pinning with Filecoin, OpenClaw skills, and Alkahest escrow payments.",
+  "main": "src/cli/index.js",
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "test": "jest --coverage",
     "start": "node src/cli/index.js",
     "dev": "node src/cli/index.js"
   },
+  "bin": {
+    "claw-pin": "src/cli/index.js"
+  },
+  "files": [
+    "src/",
+    "docs/",
+    ".env.example",
+    "README.md"
+  ],
+  "keywords": [
+    "filecoin",
+    "ipfs",
+    "cli",
+    "web3",
+    "openclaw",
+    "alkahest",
+    "escrow",
+    "storage",
+    "agentic",
+    "decentralized"
+  ],
+  "author": "claw-pin team",
+  "license": "MIT",
+  "type": "commonjs",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/aniruddha1295/claw-pin.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/aniruddha1295/claw-pin/issues"
   },
   "homepage": "https://github.com/aniruddha1295/claw-pin#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "dependencies": {
     "alkahest-ts": "^0.7.5",
     "chalk": "^4.1.2",
@@ -31,9 +54,6 @@
     "openclaw-sdk": "^2026.3.19",
     "ora": "^5.4.1",
     "viem": "^2.49.3"
-  },
-  "bin": {
-    "claw-pin": "src/cli/index.js"
   },
   "devDependencies": {
     "jest": "^30.4.2"

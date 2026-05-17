@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "name": "claw-pin",
+  "builds": [
+    {
+      "src": "docs/index.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/docs/$1" }
+  ]
+}

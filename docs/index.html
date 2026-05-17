@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>claw-pin — Agentic File Storage CLI</title>
+  <meta name="description" content="Trustless file storage where AI agents negotiate, verify, and settle payments. Built on Filecoin, OpenClaw, and Alkahest escrow." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #111118;
+      --bg3: #16161f;
+      --border: #2a2a3a;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --accent3: #10b981;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --code-bg: #0d0d14;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ─────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 600; color: var(--accent2); }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent); color: #fff; border: none;
+      padding: .5rem 1.25rem; border-radius: 8px; font-size: .85rem;
+      font-weight: 600; cursor: pointer; text-decoration: none;
+      transition: opacity .2s;
+    }
+    .nav-cta:hover { opacity: .85; }
+
+    /* ── HERO ────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 6rem 2rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,58,237,.18) 0%, transparent 70%),
+                  radial-gradient(ellipse 50% 40% at 80% 80%, rgba(6,182,212,.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: rgba(124,58,237,.15); border: 1px solid rgba(124,58,237,.35);
+      padding: .35rem 1rem; border-radius: 999px; font-size: .8rem;
+      color: #a78bfa; margin-bottom: 1.5rem; animation: fadeUp .6s ease both;
+    }
+    .badge span { width: 7px; height: 7px; border-radius: 50%; background: #7c3aed; display: block; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.3; } }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+    h1 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 700; line-height: 1.1;
+      animation: fadeUp .7s .1s ease both;
+    }
+    h1 .accent { background: linear-gradient(135deg, #7c3aed, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-sub {
+      max-width: 600px; font-size: 1.15rem; color: var(--muted); margin: 1.5rem auto;
+      animation: fadeUp .7s .2s ease both;
+    }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; animation: fadeUp .7s .3s ease both; margin-top: 1rem; }
+    .btn-primary {
+      background: linear-gradient(135deg, #7c3aed, #6d28d9);
+      color: #fff; padding: .75rem 1.75rem; border-radius: 10px;
+      font-weight: 600; text-decoration: none; font-size: .95rem;
+      box-shadow: 0 4px 24px rgba(124,58,237,.35); transition: transform .2s, box-shadow .2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(124,58,237,.5); }
+    .btn-secondary {
+      background: var(--bg3); border: 1px solid var(--border); color: var(--text);
+      padding: .75rem 1.75rem; border-radius: 10px; font-weight: 500;
+      text-decoration: none; font-size: .95rem; transition: border-color .2s;
+    }
+    .btn-secondary:hover { border-color: var(--accent2); }
+
+    /* ── TERMINAL DEMO ────────────────────────────────── */
+    .terminal-wrap { margin-top: 3.5rem; animation: fadeUp .8s .4s ease both; width: 100%; max-width: 680px; }
+    .terminal {
+      background: var(--code-bg); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.6);
+    }
+    .terminal-bar {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .75rem 1rem; background: #1a1a24; border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; } .dot-y { background: #ffbd2e; } .dot-g { background: #28c840; }
+    .terminal-title { margin-left: .5rem; font-family: 'JetBrains Mono', monospace; font-size: .78rem; color: var(--muted); }
+    .terminal-body { padding: 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: .85rem; line-height: 2; }
+    .t-prompt { color: var(--accent2); }
+    .t-cmd { color: #e2e8f0; }
+    .t-comment { color: #475569; }
+    .t-ok { color: var(--accent3); }
+    .t-info { color: #a78bfa; }
+    .t-field { color: var(--accent2); }
+
+    /* ── SECTIONS ─────────────────────────────────────── */
+    section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+    .section-label { font-size: .8rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--accent2); margin-bottom: .75rem; }
+    h2 { font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 700; margin-bottom: 1rem; }
+    h2 .dim { color: var(--muted); font-weight: 400; }
+
+    /* ── PRIZES ───────────────────────────────────────── */
+    .prizes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; }
+    .prize-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.75rem; transition: border-color .25s, transform .25s;
+    }
+    .prize-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .prize-icon { font-size: 2rem; margin-bottom: .75rem; }
+    .prize-card h3 { font-size: 1.1rem; margin-bottom: .4rem; }
+    .prize-amount { font-size: 1.5rem; font-weight: 700; color: var(--accent3); }
+    .prize-card p { font-size: .88rem; color: var(--muted); margin-top: .5rem; }
+
+    /* ── ARCHITECTURE ─────────────────────────────────── */
+    .arch-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 2.5rem; }
+    .arch-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.5rem; position: relative; overflow: hidden;
+    }
+    .arch-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+    .arch-card h4 { font-size: .95rem; font-weight: 600; margin-bottom: .35rem; }
+    .arch-card p { font-size: .82rem; color: var(--muted); }
+    .arch-tag { display: inline-block; font-size: .7rem; font-family: 'JetBrains Mono', monospace; background: rgba(124,58,237,.15); color: #a78bfa; border-radius: 4px; padding: .1rem .45rem; margin-bottom: .6rem; }
+
+    /* ── COMMANDS ─────────────────────────────────────── */
+    .commands { display: flex; flex-direction: column; gap: 1rem; margin-top: 2.5rem; }
+    .cmd-row {
+      background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px;
+      padding: 1.2rem 1.5rem; display: flex; align-items: flex-start; gap: 1.5rem;
+      transition: border-color .2s;
+    }
+    .cmd-row:hover { border-color: var(--accent2); }
+    .cmd-code { font-family: 'JetBrains Mono', monospace; font-size: .85rem; color: var(--accent2); min-width: 280px; }
+    .cmd-desc { font-size: .88rem; color: var(--muted); }
+
+    /* ── FLOW ─────────────────────────────────────────── */
+    .flow {
+      display: flex; align-items: center; gap: 0; margin-top: 2.5rem;
+      flex-wrap: wrap; justify-content: center;
+    }
+    .flow-step {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.25rem 1.5rem; text-align: center; min-width: 140px;
+    }
+    .flow-step .num { font-size: .75rem; color: var(--accent); font-weight: 700; margin-bottom: .35rem; }
+    .flow-step h4 { font-size: .9rem; }
+    .flow-step p { font-size: .78rem; color: var(--muted); margin-top: .25rem; }
+    .flow-arrow { color: var(--border); font-size: 1.4rem; padding: 0 .5rem; }
+
+    /* ── INSTALL ──────────────────────────────────────── */
+    .install-box {
+      background: var(--code-bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem 2rem; margin-top: 2rem;
+      font-family: 'JetBrains Mono', monospace; font-size: .9rem;
+    }
+    .install-box .copy-label { font-size: .75rem; color: var(--muted); margin-bottom: .75rem; display: block; }
+
+    /* ── FOOTER ───────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border); padding: 2.5rem 2rem;
+      text-align: center; color: var(--muted); font-size: .85rem;
+    }
+    footer a { color: var(--accent2); text-decoration: none; }
+
+    /* ── DIVIDER ──────────────────────────────────────── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .cmd-row { flex-direction: column; gap: .5rem; }
+      .cmd-code { min-width: unset; }
+      .flow-arrow { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">claw-pin</div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#commands">Commands</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#install">Install</a>
+  </div>
+  <a class="nav-cta" href="https://github.com/aniruddha1295/claw-pin" target="_blank">GitHub →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge"><span></span> IPFS × OpenClaw Hackathon 2026</div>
+  <h1>Agentic file storage<br/><span class="accent">for autonomous agents</span></h1>
+  <p class="hero-sub">
+    Trustless file pinning to Filecoin with conditional Alkahest escrow payments.
+    AI agents upload, verify, and settle — zero middlemen.
+  </p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="#install">Install CLI</a>
+    <a class="btn-secondary" href="https://github.com/aniruddha1295/claw-pin" target="_blank">View on GitHub</a>
+  </div>
+
+  <div class="terminal-wrap">
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <span class="terminal-title">claw-pin demo</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-comment"># Initialize your Filecoin wallet</span></div>
+        <div><span class="t-prompt">$ </span><span class="t-cmd">claw-pin init</span></div>
+        <div><span class="t-ok">✅ Wallet created: f1xkr3mq7...</span></div>
+        <br/>
+        <div><span class="t-comment"># Pin a file to Filecoin</span></div>
+        <div><span class="t-prompt">$ </span><span class="t-cmd">claw-pin upload report.pdf</span></div>
+        <div><span class="t-info">  CID:      bafybeig4e5b90d6ff64f4a8...</span></div>
+        <div><span class="t-info">  Status:   pinned</span></div>
+        <div><span class="t-info">  Cost:     0.00000001 FIL</span></div>
+        <div><span class="t-ok">✅ Pin complete.</span></div>
+        <br/>
+        <div><span class="t-comment"># Upload with trustless escrow payment</span></div>
+        <div><span class="t-prompt">$ </span><span class="t-cmd">claw-pin upload --trustless report.pdf</span></div>
+        <div><span class="t-info">  Contract: 0x7a23f8e1...</span></div>
+        <div><span class="t-ok">✅ Escrow released after pin verified.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- PRIZES -->
+<section id="features">
+  <div class="section-label">Prize Targets</div>
+  <h2>Built to win <span class="dim">across all categories</span></h2>
+  <div class="prizes">
+    <div class="prize-card">
+      <div class="prize-icon">🥇</div>
+      <h3>IPFS Grand Prize</h3>
+      <div class="prize-amount">$1,000</div>
+      <p>Core CLI + Filecoin Pin SDK + OpenClaw agent orchestration.</p>
+    </div>
+    <div class="prize-card">
+      <div class="prize-icon">🥈</div>
+      <h3>Arkhai Bounty</h3>
+      <div class="prize-amount">$200</div>
+      <p>Alkahest escrow integration — pay only after pin is verified on-chain.</p>
+    </div>
+    <div class="prize-card">
+      <div class="prize-icon">🥉</div>
+      <h3>Aomi Best App</h3>
+      <div class="prize-amount">$300</div>
+      <p>OpenClaw skill registration — agentic, not just a CLI tool.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ESCROW FLOW -->
+<section>
+  <div class="section-label">Trustless Payment Flow</div>
+  <h2>How the escrow <span class="dim">works</span></h2>
+  <div class="flow">
+    <div class="flow-step"><div class="num">01</div><h4>Upload</h4><p>File pinned to Filecoin</p></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="num">02</div><h4>Lock</h4><p>Alkahest escrow created</p></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="num">03</div><h4>Verify</h4><p>Agent checks CID status</p></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="num">04</div><h4>Release</h4><p>Funds released on success</p></div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+  <div class="section-label">Tech Stack</div>
+  <h2>Architecture <span class="dim">overview</span></h2>
+  <div class="arch-grid">
+    <div class="arch-card">
+      <div class="arch-tag">CLI</div>
+      <h4>Commander.js</h4>
+      <p>Clean argument parsing with subcommands: upload, status, retrieve, init.</p>
+    </div>
+    <div class="arch-card">
+      <div class="arch-tag">Agent</div>
+      <h4>OpenClaw SDK</h4>
+      <p>Skill registration and orchestration — what makes this agentic, not just a CLI.</p>
+    </div>
+    <div class="arch-card">
+      <div class="arch-tag">Storage</div>
+      <h4>Filecoin Pin</h4>
+      <p>filecoin-pin-js wraps decentralised storage pinning. Returns CIDv1 on success.</p>
+    </div>
+    <div class="arch-card">
+      <div class="arch-tag">Payment</div>
+      <h4>Filecoin Pay SDK</h4>
+      <p>Mainnet wallet generation and transaction management for FIL payments.</p>
+    </div>
+    <div class="arch-card">
+      <div class="arch-tag">Escrow</div>
+      <h4>Alkahest</h4>
+      <p>Conditional payment contracts — funds held until pin verified, then released.</p>
+    </div>
+    <div class="arch-card">
+      <div class="arch-tag">State</div>
+      <h4>SQLite + dotenv</h4>
+      <p>Local CID→status mapping and secure wallet credential management.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- COMMANDS -->
+<section id="commands">
+  <div class="section-label">Commands</div>
+  <h2>Everything you <span class="dim">need</span></h2>
+  <div class="commands">
+    <div class="cmd-row">
+      <div class="cmd-code">claw-pin init</div>
+      <div class="cmd-desc">Generate a new Filecoin-compatible mainnet wallet and save credentials to <code>.env.wallet</code>.</div>
+    </div>
+    <div class="cmd-row">
+      <div class="cmd-code">claw-pin upload &lt;file&gt;</div>
+      <div class="cmd-desc">Pin a local file to the Filecoin network. Returns CID, status, size, and estimated cost.</div>
+    </div>
+    <div class="cmd-row">
+      <div class="cmd-code">claw-pin upload --trustless &lt;file&gt;</div>
+      <div class="cmd-desc">Upload with Alkahest escrow — funds locked until pin is verified on-chain, then auto-released.</div>
+    </div>
+    <div class="cmd-row">
+      <div class="cmd-code">claw-pin status &lt;CID&gt;</div>
+      <div class="cmd-desc">Query pin status for a CID. Returns pinned status, provider count, and retrievability.</div>
+    </div>
+    <div class="cmd-row">
+      <div class="cmd-code">claw-pin retrieve &lt;CID&gt; &lt;path&gt;</div>
+      <div class="cmd-desc">Download a pinned file by CID to a local output path.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- INSTALL -->
+<section id="install">
+  <div class="section-label">Get Started</div>
+  <h2>Install in <span class="dim">seconds</span></h2>
+  <div class="install-box">
+    <span class="copy-label">Run without installing (npx):</span>
+    <div><span class="t-prompt" style="color:#06b6d4">$ </span><span style="color:#e2e8f0">npx claw-pin --help</span></div>
+  </div>
+  <div class="install-box" style="margin-top:1rem">
+    <span class="copy-label">Install globally:</span>
+    <div><span class="t-prompt" style="color:#06b6d4">$ </span><span style="color:#e2e8f0">npm install -g claw-pin</span></div>
+  </div>
+  <div class="install-box" style="margin-top:1rem">
+    <span class="copy-label">Clone and run locally:</span>
+    <div><span class="t-prompt" style="color:#06b6d4">$ </span><span style="color:#e2e8f0">git clone https://github.com/aniruddha1295/claw-pin.git</span></div>
+    <div><span class="t-prompt" style="color:#06b6d4">$ </span><span style="color:#e2e8f0">cd claw-pin && npm install && npm start</span></div>
+  </div>
+  <div style="margin-top:2rem; display:flex; gap:1rem; flex-wrap:wrap;">
+    <a class="btn-primary" href="https://github.com/aniruddha1295/claw-pin" target="_blank">View on GitHub</a>
+    <a class="btn-secondary" href="https://www.npmjs.com/package/claw-pin" target="_blank">NPM Package</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>Built for the <strong>IPFS × OpenClaw Hackathon 2026</strong> · Cybernetic Economy Infrastructure</p>
+  <p style="margin-top:.5rem">
+    <a href="https://github.com/aniruddha1295/claw-pin">GitHub</a> ·
+    <a href="https://www.npmjs.com/package/claw-pin">NPM</a>
+  </p>
+</footer>
+
+</body>
+</html>
