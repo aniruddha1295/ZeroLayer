@@ -74,20 +74,20 @@ claw-pin status <CID>
 ## 📦 Installation
 
 ```bash
-# Clone repository
-git clone https://github.com/yourteam/claw-pin.git
+# Install globally from npm
+npm install -g claw-pin
+
+# Or run without installing
+npx claw-pin --help
+```
+
+### From source
+
+```bash
+git clone https://github.com/aniruddha1295/ZeroLayer.git
 cd claw-pin
-
-# Install dependencies
 npm install
-
-# Configure mainnet wallet (REQUIRED for submission)
-cp .env.example .env
-# Edit .env with your Filecoin Pay wallet address
-
-# Build and run
-npm run build
-npm start
+node src/cli/index.js --help
 ```
 
 **Minimum Node Version:** 16.x  
@@ -268,7 +268,7 @@ MIT License - See [LICENSE](LICENSE) file for details.
 
 | Resource | URL |
 | :--- | :--- |
-| **GitHub** | https://github.com/yourteam/claw-pin |
+| **GitHub** | https://github.com/aniruddha1295/ZeroLayer |
 | **Loops.house** | (Submission link) |
 | **Issue Tracker** | `.github/ISSUES.md` |
 | **Team Chat** | (Discord/Slack link) |
