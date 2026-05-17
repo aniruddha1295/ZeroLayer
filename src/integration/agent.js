@@ -1,6 +1,5 @@
 'use strict';
 
-const { createClient } = require('openclaw-sdk');
 const skills = require('../skills');
 
 let agentInstance = null;
@@ -14,9 +13,10 @@ async function initAgent() {
     skillMap[skill.name] = skill;
   });
 
-  // Connect to OpenClaw Gateway (non-fatal if unavailable in CLI mode)
+  // Connect to OpenClaw Gateway (non-fatal if unavailable or ESM/CJS incompatible)
   let gatewayClient = null;
   try {
+    const { createClient } = require('openclaw-sdk');
     gatewayClient = createClient({
       url: process.env.OPENCLAW_GATEWAY_URL || 'ws://localhost:18789',
       auth: { token: process.env.OPENCLAW_GATEWAY_TOKEN || '' },
