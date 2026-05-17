@@ -1,4 +1,4 @@
-# 🏆 claw-pin - Agentic File Storage CLI for Autonomous Agents.
+# 🏆 ZeroLayer - Agentic File Storage CLI for Autonomous Agents.
 
 > **"Trustless file storage where AI agents negotiate, verify, and settle payments"—The missing infrastructure layer for the cybernetic economy.**
 
